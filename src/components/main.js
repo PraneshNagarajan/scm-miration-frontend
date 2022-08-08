@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Form, Col, Row, FormGroup, FormControl, FormLabel, Button, Spinner } from "react-bootstrap";
 import { useFormik } from "formik";
+import axios from "axios";
 
 const formValidation = (field) => {
     const errors = {}
@@ -41,10 +42,17 @@ const formValidation = (field) => {
 }
 
 const MainPage = () => {
-
+    const [isSVNValidated, setIsSVNValidated] = useState(false)
     const [isVisibleField, setIsVisibleField] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
-    console.log(isLoading)
+
+    const auth = (value) => {
+        console.log(`https://` + value.svnusername + `:` + value.svnpassword + `@` + value.svnurl + value.svnrepo)
+                axios.get(`https://` + value.svnusername + `:` + value.svnpassword + `@` + value.svnurl + value.svnrepo)
+                    .then(res => {
+                        console.log(res)
+            })
+    }
 
     const formik = useFormik({
         initialValues: {
@@ -59,7 +67,17 @@ const MainPage = () => {
         },
         validate: formValidation,
         onSubmit: async (value) => {
-            setIsLoading(!isLoading)
+            console.log("wfey")
+            // setIsLoading(!isLoading)
+            // // if (!isSVNValidated) {
+            //     console.log(`https://` + value.svnusername + `:` + value.svnpassword + `@` + value.svnurl + value.svnbranch)
+            //     axios.get(`https://` + value.svnusername + `:` + value.svnpassword + `@` + value.svnurl + value.svnbranch)
+            //         .then(res => {
+            //             console.log(res)
+            //         })
+            //     setIsSVNValidated(true)
+            // // }
+            // setIsLoading(!isLoading)
         }
     })
 
@@ -83,6 +101,7 @@ const MainPage = () => {
                         {formik.touched.svnurl && formik.errors.svnurl && <p className="text-danger">{formik.errors.svnurl}</p>}
                     </FormGroup>
                 </Col>
+
                 <Col md="6">
                     <FormGroup className="mt-2">
                         <FormLabel>Enter SVN Repo Name :</FormLabel>
@@ -101,34 +120,6 @@ const MainPage = () => {
 
                 <Col md="6">
                     <FormGroup className="mt-2">
-                        <FormLabel>Enter SVN Branch :</FormLabel>
-                        <FormControl
-                            type="text"
-                            name="svnbranch"
-                            value={formik.values.svnbranch}
-                            onBlur={formik.handleBlur}
-                            onChange={formik.handleChange}
-                            isValid={formik.touched.svnbranch && !formik.errors.svnbranch}
-                            isInvalid={formik.touched.svnbranch && formik.errors.svnbranch} />
-                        {formik.touched.svnbranch && formik.errors.svnbranch && <p className="text-danger">{formik.errors.svnbranch}</p>}
-                    </FormGroup>
-                </Col>
-                <Col md="6" className="mt-2">
-                    <FormGroup>
-                        <FormLabel>Enter Revision :</FormLabel>
-                        <FormControl
-                            type="text"
-                            name="svnrevision"
-                            value={formik.values.svnrevision}
-                            onBlur={formik.handleBlur}
-                            onChange={formik.handleChange}
-                            isValid={formik.touched.svnrevision && !formik.errors.svnrevision}
-                            isInvalid={formik.touched.svnrevision && formik.errors.svnrevision} />
-                        {formik.touched.svnrevision && formik.errors.svnrevision && <p className="text-danger">{formik.errors.svnrevision}</p>}
-                    </FormGroup>
-                </Col>
-                <Col md="6">
-                    <FormGroup className="mt-2">
                         <FormLabel>Enter SVN Repo username:</FormLabel>
                         <FormControl
                             type="text"
@@ -141,6 +132,7 @@ const MainPage = () => {
                         {formik.touched.svnusername && formik.errors.svnusername && <p className="text-danger">{formik.errors.svnusername}</p>}
                     </FormGroup>
                 </Col>
+
                 <Col md="6">
                     <FormGroup className="mt-2">
                         <FormLabel>Enter SVN Repo password:</FormLabel>
@@ -155,40 +147,77 @@ const MainPage = () => {
                         {formik.touched.svnpassword && formik.errors.svnpassword && <p className="text-danger">{formik.errors.svnpassword}</p>}
                     </FormGroup>
                 </Col>
+                {isSVNValidated &&
+                    <>
+                        <Col md="6">
+                            <FormGroup className="mt-2">
+                                <FormLabel>Enter SVN Branch :</FormLabel>
+                                <FormControl
+                                    type="text"
+                                    name="svnbranch"
+                                    value={formik.values.svnbranch}
+                                    onBlur={formik.handleBlur}
+                                    onChange={formik.handleChange}
+                                    isValid={formik.touched.svnbranch && !formik.errors.svnbranch}
+                                    isInvalid={formik.touched.svnbranch && formik.errors.svnbranch} />
+                                {formik.touched.svnbranch && formik.errors.svnbranch && <p className="text-danger">{formik.errors.svnbranch}</p>}
+                            </FormGroup>
+                        </Col>
+
+                        <Col md="6" className="mt-2">
+                            <FormGroup>
+                                <FormLabel>Enter Revision :</FormLabel>
+                                <FormControl
+                                    type="text"
+                                    name="svnrevision"
+                                    value={formik.values.svnrevision}
+                                    onBlur={formik.handleBlur}
+                                    onChange={formik.handleChange}
+                                    isValid={formik.touched.svnrevision && !formik.errors.svnrevision}
+                                    isInvalid={formik.touched.svnrevision && formik.errors.svnrevision} />
+                                {formik.touched.svnrevision && formik.errors.svnrevision && <p className="text-danger">{formik.errors.svnrevision}</p>}
+                            </FormGroup>
+                        </Col>
+                    </>
+                }
             </Row>
-            <Row className="mt-5">
-                <h4 className="my-2">GITHUB Repo:</h4>
-                <Col md="6">
-                    <FormGroup className="mt-2">
-                        <FormLabel>Enter GitHub username:</FormLabel>
-                        <FormControl
-                            type="text"
-                            name="gitusername"
-                            value={formik.values.gitusername}
-                            onBlur={formik.handleBlur}
-                            onChange={formik.handleChange}
-                            isValid={formik.touched.gitusername && !formik.errors.gitusername}
-                            isInvalid={formik.touched.gitusername && formik.errors.gitusername} />
-                        {formik.touched.gitusername && formik.errors.gitusername && <p className="text-danger">{formik.errors.gitusername}</p>}
-                    </FormGroup>
-                </Col>
-                <Col md="6" className="mt-2">
-                    <FormGroup>
-                        <FormLabel>Enter GitHub token:</FormLabel>
-                        <FormControl
-                            type="password"
-                            name="gitpassword"
-                            value={formik.values.gitpassword}
-                            onBlur={formik.handleBlur}
-                            onChange={formik.handleChange}
-                            isValid={formik.touched.gitpassword && !formik.errors.gitpassword}
-                            isInvalid={formik.touched.gitpassword && formik.errors.gitpassword} />
-                        {formik.touched.gitpassword && formik.errors.gitpassword && <p className="text-danger">{formik.errors.gitpassword}</p>}
-                    </FormGroup>
-                </Col>
-            </Row>
+            {isSVNValidated &&
+                <Row className="mt-5">
+                    <h4 className="my-2">GITHUB Repo:</h4>
+                    <Col md="6">
+                        <FormGroup className="mt-2">
+                            <FormLabel>Enter GitHub username:</FormLabel>
+                            <FormControl
+                                type="text"
+                                name="gitusername"
+                                value={formik.values.gitusername}
+                                onBlur={formik.handleBlur}
+                                onChange={formik.handleChange}
+                                isValid={formik.touched.gitusername && !formik.errors.gitusername}
+                                isInvalid={formik.touched.gitusername && formik.errors.gitusername} />
+                            {formik.touched.gitusername && formik.errors.gitusername && <p className="text-danger">{formik.errors.gitusername}</p>}
+                        </FormGroup>
+                    </Col>
+
+                    <Col md="6" className="mt-2">
+                        <FormGroup>
+                            <FormLabel>Enter GitHub token:</FormLabel>
+                            <FormControl
+                                type="password"
+                                name="gitpassword"
+                                value={formik.values.gitpassword}
+                                onBlur={formik.handleBlur}
+                                onChange={formik.handleChange}
+                                isValid={formik.touched.gitpassword && !formik.errors.gitpassword}
+                                isInvalid={formik.touched.gitpassword && formik.errors.gitpassword} />
+                            {formik.touched.gitpassword && formik.errors.gitpassword && <p className="text-danger">{formik.errors.gitpassword}</p>}
+                        </FormGroup>
+                    </Col>
+                </Row>
+            }
+{/* disabled={!(formik.dirty && formik.isValid)} */}
             <div className="d-flex justify-content-center mt-5">
-                {!isLoading && (<Button variant="primary" size="lg" type="submit" disabled={!(formik.dirty && formik.isValid)} >Submit</Button>)}
+                {!isLoading && (<Button variant="primary" size="lg" type="submit" onClick={(e) => {auth(formik.values)}}>Submit</Button>)}
                 {isLoading && (
                     <Button variant="primary" className="mt-2" size="lg" disabled>
                         <Spinner
