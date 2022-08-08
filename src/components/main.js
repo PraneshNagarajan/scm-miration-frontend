@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Form, Col, Row, FormGroup, FormControl, FormLabel, Button, Spinner } from "react-bootstrap";
+import React, { useState, Fragment } from "react";
+import { Form, Col, Row, FormGroup, FormControl, FormLabel, Button, Spinner, Dropdown, } from "react-bootstrap";
 import { useFormik } from "formik";
 import axios from "axios";
 
@@ -14,11 +14,11 @@ const formValidation = (field) => {
         errors.svnrepo = "*Required."
     }
 
-    if (!field.svnbranch) {
+    if (!field.svnbranch || field.svnbranch.includes('-')) {
         errors.svnbranch = "*Required."
     }
 
-    if (!field.svnrevision) {
+    if (!field.svnrevision || field.svnrevision.includes('-')) {
         errors.svnrevision = "*Required."
     }
 
@@ -45,21 +45,43 @@ const MainPage = () => {
     const [isSVNValidated, setIsSVNValidated] = useState(false)
     const [isVisibleField, setIsVisibleField] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const [branches, setBranches] = useState([])
+    const [revisions, setRevisions] = useState([])
 
-    const auth = (value) => {
-        console.log(`https://` + value.svnusername + `:` + value.svnpassword + `@` + value.svnurl + value.svnrepo)
-                axios.get(`https://` + value.svnusername + `:` + value.svnpassword + `@` + value.svnurl + value.svnrepo)
-                    .then(res => {
-                        console.log(res)
-            })
+    const getBranchInfo = (value) => {
+        const data = {
+            "url": value.svnurl + value.svnrepo,
+            "username": value.svnusername,
+            "password": value.svnpassword
+        }
+        const baseURL = "http://localhost:5000/svnbranches"
+        axios.post(baseURL, data).then(res => {
+            console.log(res)
+            setIsSVNValidated(true)
+            setBranches(res.data)
+        })
+    }
+
+    const getRevisionInfo = (value, branch) => {
+        const data = {
+            "url": value.svnurl + value.svnrepo,
+            "branch": branch,
+            "username": value.svnusername,
+            "password": value.svnpassword
+        }
+        const baseURL = "http://localhost:5000/svnrevisions"
+        axios.post(baseURL, data).then(res => {
+            console.log(res)
+            setRevisions(res.data)
+        })
     }
 
     const formik = useFormik({
         initialValues: {
             svnurl: "",
             svnrepo: "",
-            svnbranch: "",
-            svnrevision: "",
+            svnbranch: "- Select SVN Branch -",
+            svnrevision: "- Select Revision -",
             svnusername: "",
             svnpassword: "",
             gitusername: "",
@@ -150,33 +172,107 @@ const MainPage = () => {
                 {isSVNValidated &&
                     <>
                         <Col md="6">
-                            <FormGroup className="mt-2">
-                                <FormLabel>Enter SVN Branch :</FormLabel>
-                                <FormControl
-                                    type="text"
+                            <Dropdown className="dropbox mt-5">
+                                <Dropdown.Toggle
                                     name="svnbranch"
-                                    value={formik.values.svnbranch}
                                     onBlur={formik.handleBlur}
-                                    onChange={formik.handleChange}
-                                    isValid={formik.touched.svnbranch && !formik.errors.svnbranch}
-                                    isInvalid={formik.touched.svnbranch && formik.errors.svnbranch} />
-                                {formik.touched.svnbranch && formik.errors.svnbranch && <p className="text-danger">{formik.errors.svnbranch}</p>}
-                            </FormGroup>
-                        </Col>
+                                    variant={`outline-${!formik.touched.svnbranch
+                                        ? `primary`
+                                        : !formik.values.svnbranch.includes(
+                                            "-"
+                                        ) && formik.touched.svnbranch
+                                            ? `success`
+                                            : formik.values.svnbranch.includes("-") &&
+                                                formik.touched.svnbranch
+                                                ? `danger`
+                                                : ``
+                                        }`}
+                                    className="w-100"
+                                >
+                                    {formik.values.svnbranch}
+                                </Dropdown.Toggle>
 
-                        <Col md="6" className="mt-2">
-                            <FormGroup>
-                                <FormLabel>Enter Revision :</FormLabel>
-                                <FormControl
-                                    type="text"
+                                <Dropdown.Menu className="w-100" >
+                                    {branches.map(
+                                        (branch, index) => {
+                                            return (
+                                                <Fragment key={index}>
+                                                    <Dropdown.Item
+                                                        className="text-center"
+                                                        active={formik.values.svnbranch.includes(
+                                                            branch
+                                                        )}
+                                                        onClick={() => {
+                                                            formik.setFieldValue(
+                                                                "svnbranch",
+                                                                branch
+                                                            )
+                                                            getRevisionInfo(formik.values, branch)
+                                                        }}
+                                                    >
+                                                        {branch}
+                                                    </Dropdown.Item>
+                                                    {branches
+                                                        .length -
+                                                        1 >
+                                                        index && <Dropdown.Divider />}
+                                                </Fragment>
+                                            );
+                                        }
+                                    )}
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        </Col>
+                        <Col md="6">
+                            <Dropdown className="dropbox mt-5">
+                                <Dropdown.Toggle
                                     name="svnrevision"
-                                    value={formik.values.svnrevision}
                                     onBlur={formik.handleBlur}
-                                    onChange={formik.handleChange}
-                                    isValid={formik.touched.svnrevision && !formik.errors.svnrevision}
-                                    isInvalid={formik.touched.svnrevision && formik.errors.svnrevision} />
-                                {formik.touched.svnrevision && formik.errors.svnrevision && <p className="text-danger">{formik.errors.svnrevision}</p>}
-                            </FormGroup>
+                                    variant={`outline-${!formik.touched.svnrevision
+                                        ? `primary`
+                                        : !formik.values.svnrevision.includes(
+                                            "-"
+                                        ) && formik.touched.svnrevision
+                                            ? `success`
+                                            : formik.values.svnrevision.includes("-") &&
+                                                formik.touched.svnrevision
+                                                ? `danger`
+                                                : ``
+                                        }`}
+                                    className="w-100"
+                                >
+                                    {formik.values.svnrevision}
+                                </Dropdown.Toggle>
+
+                                <Dropdown.Menu className="w-100" >
+                                    {revisions.map(
+                                        (revision, index) => {
+                                            return (
+                                                <Fragment key={index}>
+                                                    <Dropdown.Item
+                                                        className="text-center"
+                                                        active={formik.values.svnrevision.includes(
+                                                            revision
+                                                        )}
+                                                        onClick={() =>
+                                                            formik.setFieldValue(
+                                                                "svnrevision",
+                                                                revision
+                                                            )
+                                                        }
+                                                    >
+                                                        {revision}
+                                                    </Dropdown.Item>
+                                                    {revisions
+                                                        .length -
+                                                        1 >
+                                                        index && <Dropdown.Divider />}
+                                                </Fragment>
+                                            );
+                                        }
+                                    )}
+                                </Dropdown.Menu>
+                            </Dropdown>
                         </Col>
                     </>
                 }
@@ -215,9 +311,9 @@ const MainPage = () => {
                     </Col>
                 </Row>
             }
-{/* disabled={!(formik.dirty && formik.isValid)} */}
+            {/* disabled={!(formik.dirty && formik.isValid)} */}
             <div className="d-flex justify-content-center mt-5">
-                {!isLoading && (<Button variant="primary" size="lg" type="submit" onClick={(e) => {auth(formik.values)}}>Submit</Button>)}
+                {!isLoading && (<Button variant="primary" size="lg" type="submit" onClick={(e) => { getBranchInfo(formik.values) }}>Submit</Button>)}
                 {isLoading && (
                     <Button variant="primary" className="mt-2" size="lg" disabled>
                         <Spinner
