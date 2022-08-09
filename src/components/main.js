@@ -49,6 +49,7 @@ const MainPage = () => {
     const [revisions, setRevisions] = useState([])
 
     const getBranchInfo = (value) => {
+        setIsLoading(true)
         const data = {
             "url": value.svnurl + value.svnrepo,
             "username": value.svnusername,
@@ -56,13 +57,16 @@ const MainPage = () => {
         }
         const baseURL = "http://localhost:5000/svnbranches"
         axios.post(baseURL, data).then(res => {
-            console.log(res)
             setIsSVNValidated(true)
             setBranches(res.data)
+            setIsLoading(false)
+        }).catch(err => {
+            setIsLoading(false)
         })
     }
 
     const getRevisionInfo = (value, branch) => {
+        setIsLoading(true)
         const data = {
             "url": value.svnurl + value.svnrepo,
             "branch": branch,
@@ -71,8 +75,10 @@ const MainPage = () => {
         }
         const baseURL = "http://localhost:5000/svnrevisions"
         axios.post(baseURL, data).then(res => {
-            console.log(res)
             setRevisions(res.data)
+            setIsLoading(false)
+        }).catch(err => {
+            setIsLoading(false)
         })
     }
 
@@ -89,24 +95,31 @@ const MainPage = () => {
         },
         validate: formValidation,
         onSubmit: async (value) => {
-            console.log("wfey")
-            // setIsLoading(!isLoading)
-            // // if (!isSVNValidated) {
-            //     console.log(`https://` + value.svnusername + `:` + value.svnpassword + `@` + value.svnurl + value.svnbranch)
-            //     axios.get(`https://` + value.svnusername + `:` + value.svnpassword + `@` + value.svnurl + value.svnbranch)
-            //         .then(res => {
-            //             console.log(res)
-            //         })
-            //     setIsSVNValidated(true)
-            // // }
-            // setIsLoading(!isLoading)
+            setIsLoading(true)
+            const data = {
+                "url": value.svnurl + value.svnrepo,
+                "repo": value.svnrepo,
+                "branch": value.svnbranch,
+                "revision": value.svnrevision,
+                "username": value.svnusername,
+                "password": value.svnpassword,
+                "gitusername" : value.gitusername,
+                "gitpassword" : value.gitpassword
+            }
+            const baseURL = "http://localhost:5000/svngitmigrate"
+            axios.post(baseURL, data).then(res => {
+                alert(res.data)
+                setIsLoading(false)
+            }).catch(err => {
+                setIsLoading(false)
+            })
         }
     })
 
-    // console.log(formik)
+    console.log(formik)
     return (
         <Form className="container" onSubmit={formik.handleSubmit}>
-            <h4 className="text-center m-5">SVN - GITHUB Migration</h4>
+            <h4 className="text-center m-5">SVN - GITHUB</h4>
             <Row>
                 <h4 className="my-2">SVN Repo : </h4>
                 <Col md="6">
@@ -169,8 +182,29 @@ const MainPage = () => {
                         {formik.touched.svnpassword && formik.errors.svnpassword && <p className="text-danger">{formik.errors.svnpassword}</p>}
                     </FormGroup>
                 </Col>
-                {isSVNValidated &&
-                    <>
+            </Row>
+            {!isSVNValidated &&
+                <div className="d-flex justify-content-center mt-5">
+                    {!isLoading && (<Button variant="primary" size="lg" onClick={(e) => { getBranchInfo(formik.values) }}>Submit</Button>)}
+                    {isLoading && (
+                        <Button variant="primary" className="mt-2" size="lg" disabled>
+                            <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                            />{" "}
+                            Fetching..
+                            <span className="visually-hidden">Loading...</span>
+                        </Button>
+                    )}
+                </div>
+            }
+
+            {isSVNValidated &&
+                <>
+                    <Row>
                         <Col md="6">
                             <Dropdown className="dropbox mt-5">
                                 <Dropdown.Toggle
@@ -274,60 +308,61 @@ const MainPage = () => {
                                 </Dropdown.Menu>
                             </Dropdown>
                         </Col>
-                    </>
-                }
-            </Row>
-            {isSVNValidated &&
-                <Row className="mt-5">
-                    <h4 className="my-2">GITHUB Repo:</h4>
-                    <Col md="6">
-                        <FormGroup className="mt-2">
-                            <FormLabel>Enter GitHub username:</FormLabel>
-                            <FormControl
-                                type="text"
-                                name="gitusername"
-                                value={formik.values.gitusername}
-                                onBlur={formik.handleBlur}
-                                onChange={formik.handleChange}
-                                isValid={formik.touched.gitusername && !formik.errors.gitusername}
-                                isInvalid={formik.touched.gitusername && formik.errors.gitusername} />
-                            {formik.touched.gitusername && formik.errors.gitusername && <p className="text-danger">{formik.errors.gitusername}</p>}
-                        </FormGroup>
-                    </Col>
+                    </Row>
 
-                    <Col md="6" className="mt-2">
-                        <FormGroup>
-                            <FormLabel>Enter GitHub token:</FormLabel>
-                            <FormControl
-                                type="password"
-                                name="gitpassword"
-                                value={formik.values.gitpassword}
-                                onBlur={formik.handleBlur}
-                                onChange={formik.handleChange}
-                                isValid={formik.touched.gitpassword && !formik.errors.gitpassword}
-                                isInvalid={formik.touched.gitpassword && formik.errors.gitpassword} />
-                            {formik.touched.gitpassword && formik.errors.gitpassword && <p className="text-danger">{formik.errors.gitpassword}</p>}
-                        </FormGroup>
-                    </Col>
-                </Row>
+                    <Row className="mt-5">
+                        <h4 className="my-2">GITHUB Repo:</h4>
+                        <Col md="6">
+                            <FormGroup className="mt-2">
+                                <FormLabel>Enter GitHub username:</FormLabel>
+                                <FormControl
+                                    type="text"
+                                    name="gitusername"
+                                    value={formik.values.gitusername}
+                                    onBlur={formik.handleBlur}
+                                    onChange={formik.handleChange}
+                                    isValid={formik.touched.gitusername && !formik.errors.gitusername}
+                                    isInvalid={formik.touched.gitusername && formik.errors.gitusername} />
+                                {formik.touched.gitusername && formik.errors.gitusername && <p className="text-danger">{formik.errors.gitusername}</p>}
+                            </FormGroup>
+                        </Col>
+
+                        <Col md="6" className="mt-2">
+                            <FormGroup>
+                                <FormLabel>Enter GitHub token:</FormLabel>
+                                <FormControl
+                                    type="password"
+                                    name="gitpassword"
+                                    value={formik.values.gitpassword}
+                                    onBlur={formik.handleBlur}
+                                    onChange={formik.handleChange}
+                                    isValid={formik.touched.gitpassword && !formik.errors.gitpassword}
+                                    isInvalid={formik.touched.gitpassword && formik.errors.gitpassword} />
+                                {formik.touched.gitpassword && formik.errors.gitpassword && <p className="text-danger">{formik.errors.gitpassword}</p>}
+                            </FormGroup>
+                        </Col>
+                    </Row>
+                </>
             }
-            {/* disabled={!(formik.dirty && formik.isValid)} */}
-            <div className="d-flex justify-content-center mt-5">
-                {!isLoading && (<Button variant="primary" size="lg" type="submit" onClick={(e) => { getBranchInfo(formik.values) }}>Submit</Button>)}
-                {isLoading && (
-                    <Button variant="primary" className="mt-2" size="lg" disabled>
-                        <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                        />{" "}
-                        Processing..
-                        <span className="visually-hidden">Loading...</span>
-                    </Button>
-                )}
-            </div>
+
+            {isSVNValidated &&
+                <div className="d-flex justify-content-center mt-5">
+                    {!isLoading && (<Button variant="primary" size="lg" type="submit" disabled={!(formik.dirty && formik.isValid)} >Submit</Button>)}
+                    {isLoading && (
+                        <Button variant="primary" className="mt-2" size="lg" disabled>
+                            <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                            />{" "}
+                            Processing..
+                            <span className="visually-hidden">Loading...</span>
+                        </Button>
+                    )}
+                </div>
+            }
         </Form>
     )
 
