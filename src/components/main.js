@@ -160,7 +160,7 @@ const MainPage = () => {
         <>
             <Alerts msg={alertMsg} show={show} closeAlert={popupHandler} />
             <Form className="container" onSubmit={formik.handleSubmit}>
-                <h4 className="text-center m-5">SVN - GITHUB</h4>
+                <h4 className="text-center m-4">SVN - GITHUB</h4>
                 <Row>
                     <h4 className="my-2">SVN Repo : </h4>
                     <Col md="6">
