@@ -1,12 +1,21 @@
-import { Redirect, Route, Switch } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useDispatch } from "react-redux";
-import { useHistory, useLocation } from "react-router-dom"
+import { useHistory, useLocation } from "react-router-dom";
 import MainPage from "./components/main";
+import LoginPage from "./components/login";
 
 function App() {
+  const isAuthenticated = sessionStorage.getItem("access_token") ? true : false;
+  console.log(isAuthenticated);
   return (
-    <MainPage />
+    <Routes>
+      <Route path="/auth" element={<LoginPage />} />
+      <Route
+        path="/main"
+        element={isAuthenticated ? <MainPage /> : <Navigate to="/auth" />}
+      />
+    </Routes>
   );
 }
 
