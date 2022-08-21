@@ -14,7 +14,7 @@ import { useFormik } from "formik";
 import axios from "axios";
 import Alerts from "./Alert";
 import "./login.css";
-import {Link} from "react-router-dom"
+import { Link } from "react-router-dom";
 
 const formValidation = (field) => {
   const errors = {};
@@ -121,31 +121,43 @@ const LoginPage = () => {
                   )}
                 </FormGroup>
                 <div className="d-flex justify-content-center mt-3">
-                {!isLoading && (
-                  <Button
-                    variant="primary w-100"
-                    size="md"
-                    type="submit"
-                    disabled={!(formik.dirty && formik.isValid)}
-                  >
-                    Submit
-                  </Button>
-                )}
-                {isLoading && (
-                  <Button variant="primary" className="mt-2 w-100" size="md" disabled>
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                    />{" "}
-                    Authientcating..
-                    <span className="visually-hidden">Authientcating..</span>
-                  </Button>
-                )}
-              </div>
-              <Link to="/auth" className="float-end mt-1" style={{textDecoration: 'none'}}>Need Help?</Link>
+                  {!isLoading && (
+                    <Button
+                      variant="primary w-100"
+                      size="md"
+                      type="submit"
+                      disabled={!(formik.dirty && formik.isValid)}
+                    >
+                      Submit
+                    </Button>
+                  )}
+                  {isLoading && (
+                    <Button
+                      variant="primary"
+                      className="mt-2 w-100"
+                      size="md"
+                      disabled
+                    >
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        role="status"
+                        aria-hidden="true"
+                      />{" "}
+                      Authientcating..
+                      <span className="visually-hidden">Authientcating..</span>
+                    </Button>
+                  )}
+                </div>
+                <div className="d-flex justify-content-between mt-2">
+                  <Link to="/user" style={{ textDecoration: "none" }}>
+                    Create User
+                  </Link>
+                  <Link to="/auth" style={{ textDecoration: "none" }}>
+                    Need Help?
+                  </Link>
+                </div>
               </Col>
             </div>
           </Form>
