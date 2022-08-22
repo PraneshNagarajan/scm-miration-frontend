@@ -5,7 +5,6 @@ import {
   Row,
   FormGroup,
   FormControl,
-  FormLabel,
   Button,
   Spinner,
   Container,
@@ -15,7 +14,7 @@ import axios from "axios";
 import Alerts from "./Alert";
 import "./login.css";
 import { Link } from "react-router-dom";
-import { useHistory, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const formValidation = (field) => {
   const errors = {};
@@ -35,7 +34,7 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [show, setShow] = useState(false);
   const [alertMsg, setAlertMsg] = useState([]);
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const formik = useFormik({
     initialValues: {
@@ -54,9 +53,9 @@ const LoginPage = () => {
         .post(baseURL, data)
         .then((res) => {
           setIsLoading(false);
-          setAlertMsg(res.data);
           sessionStorage.setItem("access_token", res.data["access_token"]);
-          history.push("/main")
+          console.log("cgfg")
+          navigate("/main")
         })
         .catch((err) => {
           setIsLoading(false);
@@ -72,12 +71,12 @@ const LoginPage = () => {
 
   return (
     <>
-      <Alerts msg={alertMsg} show={show} closeAlert={popupHandler} />
+      <Alerts msg={alertMsg} show={show} closeAlert={popupHandler} isButtonVisible={false}/>
       <Container className="form-outer">
         <Row>
           <Form className="form-signin" onSubmit={formik.handleSubmit}>
             <div className="account-wall">
-              <h5 class="text-center mb-3">Sign in to continue </h5>
+              <h5 className="text-center mb-3">Sign in to continue </h5>
               <div className="d-flex justify-content-center">
                 <img
                   className="rounded-circle"
