@@ -10,6 +10,7 @@ function App() {
   console.log(isAuthenticated);
   return (
     <Routes>
+       <Route path="/" element={ <Navigate to="/auth" />} />
       <Route path="/auth" element={<LoginPage />} />
       <Route
         path="/main"
