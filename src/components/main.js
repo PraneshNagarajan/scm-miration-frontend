@@ -82,8 +82,14 @@ const MainPage = () => {
     axios
       .post(baseURL, data, { headers })
       .then((res) => {
-        setIsSVNValidated(true);
-        setBranches(res.data);
+        if (typeof res.data === "string") {
+          setShow(true);
+          setAlertMsg([{ msg: res.data, flag: false }]);
+        } else {
+          setIsSVNValidated(true);
+          setBranches(res.data);
+        }
+
         setIsLoading(false);
       })
       .catch((err) => {
@@ -116,11 +122,16 @@ const MainPage = () => {
       .post(baseURL, data, { headers })
       .then((res) => {
         let revlist = [];
-        res.data.map((revision, id) => {
-          revlist.push({ id, revision });
-          return ""
-        });
-        setRevisions(revlist);
+        if (typeof res.data === "string") {
+          setShow(true);
+          setAlertMsg([{ msg: res.data, flag: false }]);
+        } else {
+          res.data.map((revision, id) => {
+            revlist.push({ id, revision });
+            return "";
+          });
+          setRevisions(revlist);
+        }
         setIsLoading(false);
       })
       .catch((err) => {
@@ -167,8 +178,12 @@ const MainPage = () => {
         .post(baseURL, data, { headers })
         .then((res) => {
           setIsLoading(false);
-          setShow(true);
-          setAlertMsg(res.data);
+          if (typeof res.data === "string") {
+            setShow(true);
+            setAlertMsg([{ msg: res.data, flag: false }]);
+          } else {
+            setAlertMsg(res.data);
+          }
         })
         .catch((err) => {
           setIsLoading(false);
