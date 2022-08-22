@@ -178,8 +178,8 @@ const MainPage = () => {
         .post(baseURL, data, { headers })
         .then((res) => {
           setIsLoading(false);
+          setShow(true);
           if (typeof res.data === "string") {
-            setShow(true);
             setAlertMsg([{ msg: res.data, flag: false }]);
           } else {
             setAlertMsg(res.data);

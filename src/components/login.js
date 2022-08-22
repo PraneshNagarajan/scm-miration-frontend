@@ -34,7 +34,7 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [show, setShow] = useState(false);
   const [alertMsg, setAlertMsg] = useState([]);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const formik = useFormik({
     initialValues: {
@@ -54,8 +54,7 @@ const LoginPage = () => {
         .then((res) => {
           setIsLoading(false);
           sessionStorage.setItem("access_token", res.data["access_token"]);
-          console.log("cgfg")
-          navigate("/main")
+          navigate("/main");
         })
         .catch((err) => {
           setIsLoading(false);
@@ -71,7 +70,12 @@ const LoginPage = () => {
 
   return (
     <>
-      <Alerts msg={alertMsg} show={show} closeAlert={popupHandler} isButtonVisible={false}/>
+      <Alerts
+        msg={alertMsg}
+        show={show}
+        closeAlert={popupHandler}
+        isButtonVisible={false}
+      />
       <Container className="form-outer">
         <Row>
           <Form className="form-signin" onSubmit={formik.handleSubmit}>
