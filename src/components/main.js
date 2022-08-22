@@ -52,16 +52,24 @@ const MainPage = () => {
     const [selectedRevisions, setSelectedRevisions] = useState([])
     const [show, setShow] = useState(false)
     const [alertMsg, setAlertMsg] = useState([])
+    const jwt_token = sessionStorage.getItem("access_token")
+    url = "https://52.91.77.217/"
+
+    let headers = {
+        'Authorization': `JWT ${jwt_token}` 
+      }
+      console.log(headers)
 
     const getBranchInfo = (value) => {
         setIsLoading(true)
         const data = {
-            "url": value.svnurl + value.svnrepo,
+            "url": value.svnurl,
             "username": value.svnusername,
             "password": value.svnpassword
         }
-        const baseURL = "http://localhost:5000/svnbranches"
-        axios.post(baseURL, data).then(res => {
+
+        const baseURL = `${url}/svn/${value.svnrepo}`
+        axios.post(baseURL, data ,headers ).then(res => {
             setIsSVNValidated(true)
             setBranches(res.data)
             setIsLoading(false)
@@ -76,13 +84,12 @@ const MainPage = () => {
         multiselectRevisionlRef.current.resetSelectedValues()
         setIsLoading(true)
         const data = {
-            "url": value.svnurl + value.svnrepo,
-            "branch": branch,
+            "url": value.svnurl,
             "username": value.svnusername,
             "password": value.svnpassword
         }
-        const baseURL = "http://localhost:5000/svnrevisions"
-        axios.post(baseURL, data).then(res => {
+        const baseURL = `/${url}/svn/${value.svnrepo}/branch/${branch}/revisions`
+        axios.post(baseURL, data, headers).then(res => {
             let revlist = []
             res.data.map((revision, id) => {
                 revlist.push({ id, revision })
@@ -120,8 +127,8 @@ const MainPage = () => {
                 "gitusername": value.gitusername,
                 "gitpassword": value.gitpassword
             }
-            const baseURL = "http://localhost:5000/svngitmigrate"
-            axios.post(baseURL, data).then(res => {
+            const baseURL = `${url}/svngitmigrate`
+            axios.post(baseURL, data, headers).then(res => {
                 setIsLoading(false)
                 setShow(true)
                 setAlertMsg(res.data)
