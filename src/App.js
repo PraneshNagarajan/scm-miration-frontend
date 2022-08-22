@@ -7,7 +7,6 @@ import LoginPage from "./components/login";
 
 function App() {
   const isAuthenticated = sessionStorage.getItem("access_token") ? true : false;
-  console.log(isAuthenticated);
   return (
     <Routes>
        <Route path="/" element={ <Navigate to="/auth" />} />

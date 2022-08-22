@@ -15,6 +15,7 @@ import axios from "axios";
 import Alerts from "./Alert";
 import "./login.css";
 import { Link } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 
 const formValidation = (field) => {
   const errors = {};
@@ -34,6 +35,7 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [show, setShow] = useState(false);
   const [alertMsg, setAlertMsg] = useState([]);
+  const history = useHistory()
 
   const formik = useFormik({
     initialValues: {
@@ -54,6 +56,7 @@ const LoginPage = () => {
           setIsLoading(false);
           setAlertMsg(res.data);
           sessionStorage.setItem("access_token", res.data["access_token"]);
+          history.push("/main")
         })
         .catch((err) => {
           setIsLoading(false);
