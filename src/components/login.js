@@ -48,7 +48,7 @@ const LoginPage = () => {
         username: value.username,
         password: value.password,
       };
-      const baseURL = "https://34.201.244.204/auth";
+      const baseURL = "https://3.86.151.89/auth";
       axios
         .post(baseURL, data)
         .then((res) => {
