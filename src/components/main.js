@@ -225,6 +225,46 @@ const MainPage = () => {
     setIsVisible(false);
   };
 
+  const download = (value) => {
+    setIsLoading(true);
+    const data = {
+      url: value.svnurl,
+      repo: value.svnrepo,
+      branch: value.svnbranch,
+      revisions: selectedRevisions,
+      username: value.svnusername,
+      password: value.svnpassword,
+    };
+
+    const baseURL = `${url}/download`;
+    axios
+      .post(baseURL, data, { headers })
+      .then((res) => {
+        if (typeof res.data === "string") {
+          setShow(true);
+          setAlertMsg([{ msg: res.data, flag: false }]);
+        } else {
+          setIsSVNValidated(true);
+          setBranches(res.data);
+        }
+
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        setShow(true);
+        if (err.response.status === 401) {
+          sessionStorage.removeItem("access_token");
+          setIsVisible(true);
+          setAlertMsg([
+            { msg: "Session timeout. Please login again.", flag: false },
+          ]);
+        } else {
+          setAlertMsg([{ msg: String(err), flag: false }]);
+        }
+      });
+  };
+
   return (
     <>
       <Alerts
@@ -412,6 +452,39 @@ const MainPage = () => {
               </Col>
             </Row>
 
+            <div className="d-flex justify-content-center mt-3">
+              {!isLoading && (
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={(e) => {
+                    download(formik.values, "/download");
+                  }}
+                  disabled={
+                    !(
+                      !formik.values.svnbranch.includes("-") &&
+                      selectedRevisions.length > 0
+                    )
+                  }
+                >
+                  Download
+                </Button>
+              )}
+              {isLoading && (
+                <Button variant="primary" className="mt-2" size="lg" disabled>
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                  />{" "}
+                  Fetching..
+                  <span className="visually-hidden">Loading...</span>
+                </Button>
+              )}
+            </div>
+
             <Row className="mt-5">
               <h4 className="my-2">GITHUB Repo:</h4>
               <Col md="6">
@@ -471,6 +544,16 @@ const MainPage = () => {
                 disabled={!(formik.dirty && formik.isValid)}
               >
                 Submit
+              </Button>
+            )}
+            {!isLoading && (
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={(e) => Download}
+                disabled={!(formik.dirty && formik.isValid)}
+              >
+                Download
               </Button>
             )}
             {isLoading && (
