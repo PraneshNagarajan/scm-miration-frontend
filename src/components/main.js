@@ -546,16 +546,7 @@ const MainPage = () => {
                 Submit
               </Button>
             )}
-            {!isLoading && (
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={(e) => Download}
-                disabled={!(formik.dirty && formik.isValid)}
-              >
-                Download
-              </Button>
-            )}
+
             {isLoading && (
               <Button variant="primary" className="mt-2" size="lg" disabled>
                 <Spinner
