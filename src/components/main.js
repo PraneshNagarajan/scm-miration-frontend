@@ -14,6 +14,7 @@ import { useFormik } from "formik";
 import Multiselect from "multiselect-react-dropdown";
 import axios from "axios";
 import Alerts from "./Alert";
+import { saveAs } from "file-saver";
 
 const formValidation = (field) => {
   const errors = {};
@@ -227,42 +228,46 @@ const MainPage = () => {
 
   const download = (value) => {
     setIsLoading(true);
-    const data = {
-      url: value.svnurl,
-      repo: value.svnrepo,
-      branch: value.svnbranch,
-      revisions: selectedRevisions,
-      username: value.svnusername,
-      password: value.svnpassword,
-    };
-
-    const baseURL = `${url}/download`;
-    axios
-      .post(baseURL, data, { headers })
-      .then((res) => {
-        if (typeof res.data === "string") {
+    let rev_err = [];
+    selectedRevisions.map((revision, index) => {
+      const baseURL = `${url}/download/${value.svnrepo}/${value.svnbranch}/${revision}`;
+      axios
+        .get(baseURL)
+        .then((res) => {
+          saveAs(
+            baseURL,
+            value.svnrepo + "_" + value.svnbranch + "_" + revision + ".zip"
+          );
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          setIsLoading(false);
           setShow(true);
-          setAlertMsg([{ msg: res.data, flag: false }]);
-        } else {
-          setIsSVNValidated(true);
-          setBranches(res.data);
-        }
-
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        setIsLoading(false);
-        setShow(true);
-        if (err.response.status === 401) {
-          sessionStorage.removeItem("access_token");
-          setIsVisible(true);
-          setAlertMsg([
-            { msg: "Session timeout. Please login again.", flag: false },
-          ]);
-        } else {
-          setAlertMsg([{ msg: String(err), flag: false }]);
-        }
-      });
+          if (err.response.status === 401) {
+            sessionStorage.removeItem("access_token");
+            setIsVisible(true);
+            setAlertMsg([
+              { msg: "Session timeout. Please login again.", flag: false },
+            ]);
+          } else if (err.response.status === 404) {
+            rev_err.push(revision);
+            if (selectedRevisions.length - 1 === index) {
+              setAlertMsg([
+                {
+                  msg: `The repo '${value.svnrepo}' with branch '${
+                    value.svnbranch
+                  }' and with revision '${rev_err.join(
+                    " ,"
+                  )}' archieve is not found in server.`,
+                  flag: false,
+                },
+              ]);
+            }
+          } else {
+            setAlertMsg([{ msg: String(err), flag: false }]);
+          }
+        });
+    });
   };
 
   return (
