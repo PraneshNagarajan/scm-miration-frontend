@@ -231,11 +231,17 @@ const MainPage = () => {
     let rev_err = [];
     selectedRevisions.map((revision, index) => {
       const baseURL = `${url}/download/${value.svnrepo}/${value.svnbranch}/${revision}`;
-      axios
-        .get(baseURL)
-        .then((res) => {
+      fetch(baseURL, {
+        method: "GET",
+        headers: {
+          "Content-type": "application/zip",
+          Authorization: `JWT ${jwt_token}`,
+        },
+      })
+        .then((response) => response.blob())
+        .then((blob) => {
           saveAs(
-            baseURL,
+            blob,
             value.svnrepo + "_" + value.svnbranch + "_" + revision + ".zip"
           );
           setIsLoading(false);
