@@ -54,6 +54,7 @@ const LoginPage = () => {
         .then((res) => {
           setIsLoading(false);
           sessionStorage.setItem("access_token", res.data["access_token"]);
+          sessionStorage.setItem("user", value.username)
           navigate("/main");
         })
         .catch((err) => {

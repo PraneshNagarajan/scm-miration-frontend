@@ -173,6 +173,7 @@ const MainPage = () => {
         password: value.svnpassword,
         gitusername: value.gitusername,
         gittoken: value.gitpassword,
+        loggeduser: sessionStorage.getItem("user")
       };
       const baseURL = `${url}/svngitmigrate`;
       axios
