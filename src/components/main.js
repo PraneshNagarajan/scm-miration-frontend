@@ -65,7 +65,7 @@ const MainPage = () => {
   const [alertMsg, setAlertMsg] = useState([]);
   const [isVisible, setIsVisible] = useState(false);
   const jwt_token = sessionStorage.getItem("access_token");
-  const url = "https://3.86.151.89";
+  const url = "https://52.91.228.148";
 
   let headers = {
     Authorization: `JWT ${jwt_token}`,
@@ -232,13 +232,13 @@ const MainPage = () => {
     let rev_err = [];
     selectedRevisions.map((revision, index) => {
       const baseURL = `${url}/download/${value.svnrepo}/${value.svnbranch}/${revision}`;
-      fetch(baseURL, {
+       fetch(baseURL, {
         method: "GET",
         headers: {
           "Content-type": "application/zip",
           Authorization: `JWT ${jwt_token}`,
         },
-      })
+       })
         .then((response) => response.blob())
         .then((blob) => {
           saveAs(
