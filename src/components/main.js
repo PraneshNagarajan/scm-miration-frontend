@@ -65,7 +65,7 @@ const MainPage = () => {
   const [alertMsg, setAlertMsg] = useState([]);
   const [isVisible, setIsVisible] = useState(false);
   const jwt_token = sessionStorage.getItem("access_token");
-  const url = "https://44.202.17.81";
+  const url = "https://54.175.116.174";
 
   let headers = {
     Authorization: `JWT ${jwt_token}`,
